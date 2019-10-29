@@ -3,6 +3,7 @@ package imt2018529;
 import imt2018529.animation.Scene;
 import imt2018529.animation.SceneObject;
 import imt2018529.animation.BBox;
+import imt2018529.animation.Point;
 import java.util.Iterator;
 import java.util.ArrayList;
 public class Scene_d extends Scene{
@@ -22,8 +23,8 @@ public class Scene_d extends Scene{
                 if(!sceneobject2.equals(sceneobject1)){
                     BBox bbox2 =sceneobject2.getBBox();
                     if(bbox2.intersects(bbox1)){
-                        //sceneobject1.flagit();
-                        //sceneobject2.flagit();
+                        Point point = sceneobject1.getPosition();
+                        System.out.println("SceneObjects Collided at x = "+point.getX()+" y = "+point.getY());
                     }
                 }
             }
@@ -33,8 +34,8 @@ public class Scene_d extends Scene{
                 if(!sceneobject3.equals(sceneobject1)){
                     BBox bbox3 = sceneobject3.getBBox();
                     if(bbox3.intersects(bbox1)){
-                        //sceneobject1.flagit();
-                        //sceneobject3.flagit();
+                        Point point = sceneobject1.getPosition();
+                        System.out.println("SceneObjects Collided at x = "+point.getX()+" y = "+point.getY());
                     }
                 }
             }
@@ -49,8 +50,8 @@ public class Scene_d extends Scene{
                 if(!sceneobject2.equals(sceneobject1)){
                     BBox bbox2 =sceneobject2.getBBox();
                     if(bbox2.intersects(bbox1)){
-                        //sceneobject1.flagit();
-                        //sceneobject2.flagit();
+                        Point point = sceneobject1.getPosition();
+                        System.out.println("SceneObjects Collided at x = "+point.getX()+" y = "+point.getY());
                     }
                 }
             }
@@ -60,8 +61,8 @@ public class Scene_d extends Scene{
                 if(!sceneobject3.equals(sceneobject1)){
                     BBox bbox3 = sceneobject3.getBBox();
                     if(bbox3.intersects(bbox1)){
-                        //sceneobject1.flagit();
-                        //sceneobject3.flagit();
+                        Point point = sceneobject1.getPosition();
+                        System.out.println("SceneObjects Collided at x = "+point.getX()+" y = "+point.getY());
                     }
                 }
             }

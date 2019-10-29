@@ -73,7 +73,6 @@ public class SceneObject_d extends SceneObject{
         //         maxy=y;
         //     }
         // }
-        // THIS NEED TO BE CHANGED
         this.bbox=new BBox_d(new Point(minx,miny),new Point(maxx,maxy));
     }
     private synchronized boolean checkanddo(int dx,int dy){
@@ -148,16 +147,16 @@ public class SceneObject_d extends SceneObject{
         if(checkanddo(dx,dy)){
             return;
         }
-        
         if(checkanddo(dx, -dy)){
             return;
         }
-        if(checkanddo(-dx, -dy)){
+        if(checkanddo(-dx, dy/2)){
             return;
         }
-        if(checkanddo(-dx, dy)){
+        if(checkanddo(-dx, dy/2)){
             return;
         }
+        
         
     }
 
