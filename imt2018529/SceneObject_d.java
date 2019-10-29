@@ -7,157 +7,175 @@ import imt2018529.animation.Scene;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Random;
-public class SceneObject_d extends SceneObject{
-    private String objname = "default"; 
+
+public class SceneObject_d extends SceneObject {
+    private String objname = "default";
     private Point position;
     private Point destposition;
     private BBox bbox;
-    private ArrayList outpoints = new ArrayList<Point>();
-    private int flag=0;
-    private static int dx=10;
-    private static int dy=10; 
+    private ArrayList<Point> outpoints = new ArrayList<Point>();
+    private int flag = 0;
+    private static int dx = 10;
+    private static int dy = 10;
     private static int outline_resolution = 3;
-    private static int max_size=20;
-    public SceneObject_d(){
+    private static int max_size = 20;
+    private static int id = -1;
+    private int token = 0;//This helps in sort of making selction of path randomised IF THERE IS COLLISSION IN SHORTEST PATH
+
+    public SceneObject_d() {
         super();
-        
+        this.objname = "Object " + SceneObject_d.id;
+        SceneObject_d.id = SceneObject_d.id + 1;
     }
-    // public SceneObject_d(String objname,java.awt.Point position){
-    //     this.objname=objname;
-    //     this.position.setPos(position.getX(),position.getY());
-    //     this.setOutline();
-    // }
-    public String getObjName(){
-        return this.objname;
-    }
-    public Point getPosition(){
-        return this.position;
-    }
-    public void setPosition(int x,int y){
-        this.position=new Point(x,y);
+
+    public SceneObject_d(String objname, Point position) {
+        this.objname = objname;
+        this.position.setPos(position.getX(), position.getY());
         this.setOutline();
     }
-    public void setDestPosition(int x,int y){
-        this.destposition=new Point(x,y);
+
+    public String getObjName() {
+        return this.objname;
     }
-    public BBox getBBox(){
+
+    public Point getPosition() {
+        return this.position;
+    }
+
+    // this also defines the outline
+    public void setPosition(int x, int y) {
+        this.position = new Point(x, y);
+        this.setOutline();
+    }
+
+    public void setDestPosition(int x, int y) {
+        this.destposition = new Point(x, y);
+    }
+
+    public BBox getBBox() {
         return this.bbox;
     }
-    protected ArrayList<Point> getOutline(){
+
+    protected ArrayList<Point> getOutline() {
         return this.outpoints;
     }
-    public void flagit(){
-        flag=1;
+
+    public void flagit() {
+        flag = 1;
     }
-    private void setOutline(){
-        int i=0;
-        int maxx=this.position.getX()+20;
-        int maxy=this.position.getY()+20;
-        int minx=this.position.getX()-20;
-        int miny=this.position.getY()-20;
-        Random rand = new Random();
-        // for(i=0;i<SceneObject_d.outline_resolution;i++){
-        //     int x=this.position.getX()+1+rand.nextInt(SceneObject_d.max_size)*(int)Math.pow(-1,i);
-        //     int y=this.position.getY()+1+rand.nextInt(SceneObject_d.max_size)*(int)Math.pow(-1,i);
-        //     this.outpoints.add(new Point(x,y));
-        //     if(x<minx){
-        //         minx=x;
-        //     }
-        //     if(x>maxx){
-        //         maxx=x;
-        //     }    
-        //     if(y<miny){
-        //         miny=y;
-        //     }
-        //     if(y>maxy){
-        //         maxy=y;
-        //     }
-        // }
-        this.bbox=new BBox_d(new Point(minx,miny),new Point(maxx,maxy));
+    //define the BBox and the outline can be randomised also
+    private void setOutline() {
+        int i = 0;
+        int maxx = this.position.getX() + 10;
+        int maxy = this.position.getY() + 10;
+        int minx = this.position.getX() - 10;
+        int miny = this.position.getY() - 10;
+        this.bbox = new BBox_d(new Point(minx, miny), new Point(maxx, maxy));
     }
-    private synchronized boolean checkanddo(int dx,int dy){
-        Scene scene=Scene_d.getScene();
-        ArrayList<SceneObject> actors=scene.getActors();
+
+    private  boolean checkanddo(int dx, int dy) {
+        Scene scene = Scene_d.getScene();
+        ArrayList<SceneObject> actors = scene.getActors();
         ArrayList<SceneObject> obstacles = scene.getObstacles();
-        int collision_flag=0;
-        this.setPosition(this.getPosition().getX()+dx, this.getPosition().getY()+dy);
-        Point min=this.bbox.getMinPt();
-        Point max=this.bbox.getMaxPt();
-        min.setPos(min.getX()+dx,min.getY()+dy);
-        max.setPos(max.getX()+dx,max.getY()+dy);
-        BBox newbbox = new BBox_d(min,max);//Needs to be changed
-        this.bbox=newbbox;
-        for(SceneObject sceneobject2:actors){           
-            if(sceneobject2!=this){
-                    BBox bbox2 =sceneobject2.getBBox();   
-                    if(bbox2.intersects(this.bbox)){
-                        collision_flag=1;
-                        break;
-                    }
-            }
-        } 
-        for(SceneObject sceneobject3:obstacles){
-                if(sceneobject3!=this){
-                    BBox bbox3 = sceneobject3.getBBox();   
-                    if(bbox3.intersects(this.bbox)){
-                        collision_flag=1;
-                        break;
-                    }
+        int collision_flag = 0;
+        // update to predicted position
+        this.setPosition(this.getPosition().getX() + dx, this.getPosition().getY() + dy);
+        Point min = this.bbox.getMinPt();
+        Point max = this.bbox.getMaxPt();
+        min.setPos(min.getX() + dx, min.getY() + dy);
+        max.setPos(max.getX() + dx, max.getY() + dy);
+        BBox newbbox = new BBox_d(min, max);// Needs to be changed
+        this.bbox = newbbox;
+        // Check is there any collision at updated position
+        for (SceneObject sceneobject2 : actors) {
+            if (sceneobject2 != this) {
+                BBox bbox2 = sceneobject2.getBBox();
+                if (bbox2.intersects(this.bbox)) {
+                    collision_flag = 1;
+                    break;
                 }
+            }
         }
-        //updating position
-        if(collision_flag==1){
-            this.position.setPos(this.position.getX()-dx,this.position.getY()-dy);
-            Point min1=this.bbox.getMinPt();
-            Point max1=this.bbox.getMaxPt();
-            min1.setPos(min1.getX()-dx,min1.getY()-dy);
-            max1.setPos(max1.getX()-dx,max1.getY()-dy);
-            BBox newbbox1 = new BBox_d(min1,max1);//Needs to be changed
-            this.bbox=newbbox1;
+        for (SceneObject sceneobject3 : obstacles) {
+            if (sceneobject3 != this) {
+                BBox bbox3 = sceneobject3.getBBox();
+                if (bbox3.intersects(this.bbox)) {
+                    collision_flag = 1;
+                    break;
+                }
+            }
         }
-        if(collision_flag==1){
+        // if collision happened the return back to its original position
+        if (collision_flag == 1) {
+            this.position.setPos(this.position.getX() - dx, this.position.getY() - dy);
+            Point min1 = this.bbox.getMinPt();
+            Point max1 = this.bbox.getMaxPt();
+            min1.setPos(min1.getX() - dx, min1.getY() - dy);
+            max1.setPos(max1.getX() - dx, max1.getY() - dy);
+            BBox newbbox1 = new BBox_d(min1, max1);// Needs to be changed
+            this.bbox = newbbox1;
+        }
+        if (collision_flag == 1) {
             return false;
         }
         return true;
     }
-    protected void updatePos(int deltaT){
-       // if(this.)
-        int slope=(this.position.getY()-this.destposition.getY())/(this.position.getX()-this.destposition.getX());
-        int xslope=this.destposition.getX()-this.getPosition().getX();
-        int yslope=this.destposition.getY()-this.getPosition().getY();
-        int dx,dy;
-        if(xslope<0){
-            dx=-1*SceneObject_d.dx;
-        }
-        else{
-            dx=SceneObject_d.dx;
-        }
-        if(yslope<0){
-            dy=-1*SceneObject_d.dy;    
-        }
-        else{
-            dy=SceneObject_d.dy;
-        }
-        if(slope<1){
-            dy=slope*dx;
-        }
-        else{
-            dx=dy/slope;
-        }
-        if(checkanddo(dx,dy)){
+
+    private double distance(Point a, Point b) {
+        int x = a.getX() - b.getX();
+        int y = a.getY() - b.getY();
+        return Math.sqrt(x * x + y * y);
+    }
+
+    protected void updatePos(int deltaT) {
+        if (this.distance(this.position, this.destposition) < 5) {
             return;
         }
-        if(checkanddo(dx, -dy)){
+        // compute the slope of line joining current position and destination position
+        int slope = (this.position.getY() - this.destposition.getY())
+                / (this.position.getX() - this.destposition.getX());
+        // compute the Vector's x component and y component
+        int xslope = this.destposition.getX() - this.getPosition().getX();
+        int yslope = this.destposition.getY() - this.getPosition().getY();
+        int dx, dy;
+        // Below if statements make sure that the desplacement is not more than
+        // SceneObject_d.dx and ScenObject_d.dy
+        if (xslope < 0) {
+            dx = -1 * SceneObject_d.dx;
+        } else {
+            dx = SceneObject_d.dx;
+        }
+        if (yslope < 0) {
+            dy = -1 * SceneObject_d.dy;
+        } else {
+            dy = SceneObject_d.dy;
+        }
+        if (slope < 1) {
+            dy = slope * dx;
+        } else {
+            dx = dy / slope;
+        }
+        // try different different approaches along Vector
+        // just below is shortest path
+        if (checkanddo(dx, dy)) {
             return;
         }
-        if(checkanddo(-dx, dy/2)){
+        // the option other than shortest path is not fixed by using token
+        this.token=this.token+1;
+        if (checkanddo(dx, -dy) && this.token % 3 == 0) {
+
             return;
         }
-        if(checkanddo(-dx, dy/2)){
+        if (checkanddo(-dx, dy) && this.token % 3 == 1) {
+
+            return;
+
+        }
+        if (checkanddo(-dx, -dy) && this.token % 3 == 2) {
+
             return;
         }
-        
-        
+
     }
 
 }
