@@ -8,14 +8,14 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Random;
 public class SceneObject_d extends SceneObject{
-    private String objname = "a"; 
+    private String objname = "default"; 
     private Point position;
     private Point destposition;
     private BBox bbox;
     private ArrayList outpoints = new ArrayList<Point>();
     private int flag=0;
     private static int dx=10;
-    private static int dy=10;
+    private static int dy=10; 
     private static int outline_resolution = 3;
     private static int max_size=20;
     public SceneObject_d(){
@@ -76,12 +76,18 @@ public class SceneObject_d extends SceneObject{
         // THIS NEED TO BE CHANGED
         this.bbox=new BBox_d(new Point(minx,miny),new Point(maxx,maxy));
     }
-    private synchronized boolean checkanddo(int dx,int dy,int slope){
+    private synchronized boolean checkanddo(int dx,int dy){
         Scene scene=Scene_d.getScene();
         ArrayList<SceneObject> actors=scene.getActors();
         ArrayList<SceneObject> obstacles = scene.getObstacles();
         int collision_flag=0;
         this.setPosition(this.getPosition().getX()+dx, this.getPosition().getY()+dy);
+        Point min=this.bbox.getMinPt();
+        Point max=this.bbox.getMaxPt();
+        min.setPos(min.getX()+dx,min.getY()+dy);
+        max.setPos(max.getX()+dx,max.getY()+dy);
+        BBox newbbox = new BBox_d(min,max);//Needs to be changed
+        this.bbox=newbbox;
         for(SceneObject sceneobject2:actors){           
             if(sceneobject2!=this){
                     BBox bbox2 =sceneobject2.getBBox();   
@@ -103,21 +109,20 @@ public class SceneObject_d extends SceneObject{
         //updating position
         if(collision_flag==1){
             this.position.setPos(this.position.getX()-dx,this.position.getY()-dy);
-        }
-        else{
-            Point min=this.bbox.getMinPt();
-            Point max=this.bbox.getMaxPt();
-            min.setPos(min.getX()+dx,min.getY()+dy);
-            max.setPos(max.getX()+dx,max.getY()+dy);
-            BBox newbbox = new BBox_d(min,max);//Needs to be changed
-            this.bbox=newbbox;
+            Point min1=this.bbox.getMinPt();
+            Point max1=this.bbox.getMaxPt();
+            min1.setPos(min1.getX()-dx,min1.getY()-dy);
+            max1.setPos(max1.getX()-dx,max1.getY()-dy);
+            BBox newbbox1 = new BBox_d(min1,max1);//Needs to be changed
+            this.bbox=newbbox1;
         }
         if(collision_flag==1){
-            return true;
+            return false;
         }
-        return false;
+        return true;
     }
     protected void updatePos(int deltaT){
+       // if(this.)
         int slope=(this.position.getY()-this.destposition.getY())/(this.position.getX()-this.destposition.getX());
         int xslope=this.destposition.getX()-this.getPosition().getX();
         int yslope=this.destposition.getY()-this.getPosition().getY();
@@ -140,7 +145,20 @@ public class SceneObject_d extends SceneObject{
         else{
             dx=dy/slope;
         }
-        checkanddo(dx,dy,slope);
+        if(checkanddo(dx,dy)){
+            return;
+        }
+        
+        if(checkanddo(dx, -dy)){
+            return;
+        }
+        if(checkanddo(-dx, -dy)){
+            return;
+        }
+        if(checkanddo(-dx, dy)){
+            return;
+        }
+        
     }
 
 }
