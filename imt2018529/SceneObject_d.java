@@ -71,6 +71,10 @@ public class SceneObject_d extends SceneObject {
         int minx = this.position.getX() - 10;
         int miny = this.position.getY() - 10;
         this.bbox = new BBox_d(new Point(minx, miny), new Point(maxx, maxy));
+        this.outpoints.add(new Point(minx,miny));
+        this.outpoints.add(new Point(maxx,miny));
+        this.outpoints.add(new Point(maxx,maxy));
+        this.outpoints.add(new Point(minx,maxy));
     }
 
     private  boolean checkanddo(int dx, int dy) {
@@ -114,6 +118,12 @@ public class SceneObject_d extends SceneObject {
             max1.setPos(max1.getX() - dx, max1.getY() - dy);
             BBox newbbox1 = new BBox_d(min1, max1);// Needs to be changed
             this.bbox = newbbox1;
+        }
+        else{
+            for(Point x:this.outpoints){
+                Point newp=new Point(x.getX()+dx,x.getY()+dy);
+                x=newp;
+            }
         }
         if (collision_flag == 1) {
             return false;
